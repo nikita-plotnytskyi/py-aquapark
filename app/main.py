@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Any
 
 
 class IntegerRange:
@@ -18,10 +19,13 @@ class IntegerRange:
 
     def __get__(
         self,
-        instance: None,
-        owner: None
-    ) -> None:
-        pass
+        instance: (
+            "ChildrenSlideLimitationValidator",
+            "AdultSlideLimitationValidator"
+        ),
+        owner: Any
+    ) -> int | None:
+        return getattr(instance, self.name, None)
 
     def __set__(
         self,
@@ -57,21 +61,11 @@ class ChildrenSlideLimitationValidator(SlideLimitationValidator):
     height = IntegerRange(min_amount=80, max_amount=120)
     weight = IntegerRange(min_amount=20, max_amount=50)
 
-    def __init__(self, age: int, weight: int, height: int) -> None:
-        self.age = age
-        self.height = height
-        self.weight = weight
-
 
 class AdultSlideLimitationValidator(SlideLimitationValidator):
     age = IntegerRange(min_amount=14, max_amount=60)
     height = IntegerRange(min_amount=120, max_amount=220)
     weight = IntegerRange(min_amount=50, max_amount=120)
-
-    def __init__(self, age: int, weight: int, height: int) -> None:
-        self.age = age
-        self.height = height
-        self.weight = weight
 
 
 class Slide:
@@ -92,9 +86,8 @@ class Slide:
             visitor.weight,
             visitor.height
         )
-        print(valid.__dict__)
         return all([
-            "_age" in valid.__dict__,
-            "_height" in valid.__dict__,
-            "_weight" in valid.__dict__
+            valid.age,
+            valid.weight,
+            valid.height
         ])
